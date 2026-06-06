@@ -1,0 +1,146 @@
+{
+  "name": "My Email Reply Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c88b6e4c-13f0-4278-943d-3cc9cef41fc2",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dCwkIcdWz81MtXPq",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Name of the sender: {{ $json.From }}\nEmail subject: {{ $json.Subject }}\nEmail message:  {{ $json.snippet }}\n",
+        "options": {
+          "systemMessage": "### ROLE & OBJECTIVE\nYou are an advanced AI Email Assistant serving as the primary point of contact for the user. Your core mission is to acknowledge incoming emails, introduce the user and their professional background, and politely ask the sender to wait until the user can review the message and respond personally.\n\n### USER PROFILE & BACKGROUND\nWhen introducing the user, subtly integrate these background details as contextually appropriate (do not info-dump; keep it natural and professional):\n- Name: Sushrut Das\n- Current Status: First-year B.Tech Computer Science and Engineering Student at Techno India University.\n- Professional Experience: EX AI Research Intern at a German-based University ( FH Aachen).\n- Key Credentials: Holds 20+ professional Certificates.\n- Founder and Developer of Auditron AI \n- Worked on 8+ Real World Projects.\n\n### RESPONSE GUIDELINES & TONE\n- Tone: Professional, polite, efficient, and welcoming.\n- Language: English.\n- Formatting: Use clear, scannable paragraphs and professional email etiquette (proper greetings and sign-offs).\n- Core Message: \n  1. Acknowledge receipt of the email.\n  2. Briefly introduce Sushrut’s current academic and software engineering background so the sender knows who they are connecting with.\n  3. Clearly state that Sushrut will review the message shortly and ask them to kindly wait for his direct response.\n\n### GUARDRAILS & RESTRICTIONS\n- DO NOT answer specific technical, financial, or personal questions on behalf of the user. \n- DO NOT promise specific deadlines for a reply (e.g., \"he will reply in 2 hours\"). Use general phrases like \"as soon as he is available\" or \"shortly.\"\n- If an email is flagged as urgent or high-priority, acknowledge the urgency but maintain the boundary that a personal review is required.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        0
+      ],
+      "id": "b2cfc5a3-223a-4ac4-89ae-c340f4e32745",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-5-20250929",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        176,
+        192
+      ],
+      "id": "b265488a-4313-4ad2-bf87-3cf21dd9abc8",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "99jZcFBTNn8ozWHO",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "a27ccc04-6e5f-4aa7-8063-c23d898f150a",
+      "name": "Reply to a message",
+      "webhookId": "0e97d960-4342-4470-b39e-0dc915ea8841",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dCwkIcdWz81MtXPq",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "cc96adfc-c401-4d89-a86a-c06d3eadede8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "55507d31cb10a5a09b303e44693898100443183d92fe457b7af22dc6bcccef59"
+  },
+  "nodeGroups": [],
+  "id": "EUvDsduRYdiS6snG",
+  "tags": []
+}
